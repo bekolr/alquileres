@@ -315,25 +315,30 @@ return [
             'type' => 'sidebar-menu-search',
             'text' => 'search',
         ],
-        [
-            'text' => 'blog',
-            'url' => 'admin/blog',
-            'can' => 'manage-blog',
-        ],
-        [
-            'text' => 'pages',
-            'url' => 'admin/pages',
-            'icon' => 'far fa-fw fa-file',
-            'label' => 4,
-            'label_color' => 'success',
-        ],
+       
 
         
-        ['header' => 'account_settings'],
+        ['header' => 'Configuracion de usuario'],
         [
-            'text' => 'profile',
-            'url' => 'admin/settings',
+            'text' => 'Usuarios',
+           
             'icon' => 'fas fa-fw fa-user',
+            'url' => 'users',
+            
+        ],
+        [
+            'text' => 'Roles',
+           
+            'icon' => 'fas fa-fw fa-user-shield',
+             'url' => 'roles',
+            
+        ],
+        [
+            'text' => 'Permisos',
+           
+            'icon' => 'fas fa-fw fa-key',
+            'url' => 'permisos',
+        
         ],
         ['header' => 'Inquilino'],
         [
@@ -353,26 +358,9 @@ return [
                 ],
             ],
         ],
-            ['header' => 'Departamentos'],
-        [
-            'text' => 'Departamentos',
-           
-            'icon' => 'fas fa-fw fa-building',
-            'submenu' => [
-                [
-                    'text' => 'Crear Departamento',
-                    'url' => 'departamentos/create',
-                    'icon' => 'fas fa-fw fa-plus',
-                ],
-                [
-                    'text' => 'Listar Departamentos',
-                    'url' => 'departamentos',
-                    'icon' => 'fas fa-fw fa-list',
-                ],
-            ],
-        ],
+     
 
-        ['header' => 'Edficios'],
+        ['header' => 'Edficios','can' => ['admin']],
         [
             'text' => 'Edificios',
            
@@ -382,11 +370,13 @@ return [
                     'text' => 'Crear Edificio',
                     'url' => 'edificios/create',
                     'icon' => 'fas fa-fw fa-plus',
+                    'can' => ['admin'],
                 ],
                 [
                     'text' => 'Listar Edificios',
                     'url' => 'edificios',
                     'icon' => 'fas fa-fw fa-list',
+                    'can' => 'admin',
                 ],
             ],
         ],
@@ -427,50 +417,27 @@ return [
                 ],
             ],
         ],
+
+        ['header' => 'Indice ipc'],
         [
-            'text' => 'multilevel',
-            'icon' => 'fas fa-fw fa-share',
+            'text' => 'Indice ipc',
+           
+            'icon' => 'fas fa-fw fa-chart-line',
             'submenu' => [
                 [
-                    'text' => 'level_one',
-                    'url' => '#',
+                    'text' => 'Crear Indice ipc',
+                    'url' => 'ipc/create',
+                    'icon' => 'fas fa-fw fa-plus',
                 ],
                 [
-                    'text' => 'level_one',
-                    'url' => '#',
-                    'submenu' => [
-                        [
-                            'text' => 'level_two',
-                            'url' => '#',
-                        ],
-                        [
-                            'text' => 'level_two',
-                            'url' => '#',
-                            'submenu' => [
-                                [
-                                    'text' => 'level_three',
-                                    'url' => '#',
-                                ],
-                                [
-                                    'text' => 'level_three',
-                                    'url' => '#',
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-                [
-                    'text' => 'level_one',
-                    'url' => '#',
+                    'text' => 'Listar Indice ipc',
+                    'url' => 'ipc',
+                    'icon' => 'fas fa-fw fa-list',
                 ],
             ],
-        ],
-        ['header' => 'labels'],
-        [
-            'text' => 'important',
-            'icon_color' => 'red',
-            'url' => '#',
-        ],
+        ],  
+ 
+       
         [
   'text' => 'Mis cuotas',
   'route' => 'inquilino.perfil',
@@ -491,16 +458,7 @@ return [
   
 ],
 
-        [
-            'text' => 'warning',
-            'icon_color' => 'yellow',
-            'url' => '#',
-        ],
-        [
-            'text' => 'information',
-            'icon_color' => 'cyan',
-            'url' => '#',
-        ],
+        
     ],
 
     /*

@@ -12,13 +12,14 @@
 @if(session('ok')) <x-adminlte-alert theme="success" title="OK">{{ session('ok') }}</x-adminlte-alert> @endif
 
 <table class="table table-striped table-sm">
-    <thead><tr><th>#</th><th>Nombre</th><th>Dirección</th><th></th></tr></thead>
+    <thead><tr><th>#</th><th>Nombre</th><th>Dirección</th><th>Expensas</th><th></th></tr></thead>
     <tbody>
         @foreach($edificios as $e)
         <tr>
             <td>{{ $e->id }}</td>
             <td>{{ $e->nombre }}</td>
             <td>{{ $e->direccion }}</td>
+            <td>{{ $e->expensas }}</td>
             <td><a class="btn btn-xs btn-primary" href="{{ route('edificios.show',$e) }}"><i class="fas fa-eye"></i></a></td>
         </tr>
         @endforeach

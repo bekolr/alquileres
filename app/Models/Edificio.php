@@ -10,9 +10,12 @@ class Edificio extends Model
     use HasFactory;
 
     
-        protected $fillable = ['nombre','direccion'];
+        protected $fillable = ['nombre','direccion', 'expensas'];
 
-    public function departamentos(){ return $this->hasMany(Departamento::class); }
+    public function departamentos(){ 
+        
+        return $this->hasMany(Departamento::class);
+     }
 
     // Acceso a contratos del edificio a través de los departamentos
     public function contratos()

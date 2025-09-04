@@ -11,7 +11,7 @@
 @if(session('ok')) <x-adminlte-alert theme="success" title="OK">{{ session('ok') }}</x-adminlte-alert> @endif
 
 <table class="table table-striped table-sm">
-    <thead><tr><th>#</th><th>Código</th><th>Piso</th><th>Descripción</th><th>Acciones</th></tr></thead>
+    <thead><tr><th>#</th><th>Código</th><th>Piso</th><th>Descripción</th><th> Edificio  </th><th>Acciones</th></tr></thead>
     <tbody>
         @forelse($departamentos as $d)
         <tr>
@@ -19,6 +19,7 @@
             <td>{{ $d->codigo }}</td>
             <td>{{ $d->piso }}</td>
             <td>{{ $d->descripcion }}</td>
+            <td>{{ $d->edificio->nombre }}</td>
             <td>
                 <a class="btn btn-xs btn-warning" href="{{ route('departamentos.edit',$d) }}"><i class="fas fa-edit"></i></a>
                 <form action="{{ route('departamentos.destroy',$d) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Eliminar departamento?')">

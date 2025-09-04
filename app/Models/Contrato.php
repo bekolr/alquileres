@@ -11,8 +11,8 @@ class Contrato extends Model
 
      protected $fillable = [
         'inquilino_id','departamento_id','fecha_inicio','fecha_fin','dia_vencimiento',
-        'monto_alquiler','expensas_mensuales','tasa_interes_diaria',
-        'incremento_cada_meses','porcentaje_incremento','estado'
+        'monto_alquiler','tasa_interes_diaria','tipo_ajuste',
+        'incremento_cada_meses','estado'
     ];
 
     protected $casts = [
@@ -21,8 +21,11 @@ class Contrato extends Model
     ];
 
     public function inquilino(){ return $this->belongsTo(Inquilino::class); }
+        public function ajustes() { return $this->hasMany(ContratoAjuste::class)->orderBy('desde_mes'); }
     public function departamento(){ return $this->belongsTo(Departamento::class); }
     public function cuotas(){ return $this->hasMany(Cuota::class); }
+
+    
 
     /** Genera cuotas mensuales desde fecha_inicio a fecha_fin */
     public function generarCuotas(): void

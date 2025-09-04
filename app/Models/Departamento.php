@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Departamento extends Model
 {
     use HasFactory;
-    protected $fillable = ['codigo','piso','descripcion'];
+    protected $fillable = ['codigo','piso','descripcion','edificio_id'];
     public function contratos(){ return $this->hasMany(Contrato::class); }
     public function edificio(){ return $this->belongsTo(Edificio::class); }
 

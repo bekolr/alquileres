@@ -9,6 +9,10 @@ use App\Http\Controllers\ReporteAdminController;
 use App\Http\Controllers\InquilinoController;
 use App\Http\Controllers\DepartamentoController;
 use App\Http\Controllers\EdificioController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\PermisoController;
+use App\Http\Controllers\IndiceIpcController;
 
 /*
 |--------------------------------------------------------------------------
@@ -56,9 +60,19 @@ Route::middleware('auth')->group(function () {
     Route::resource('departamentos', DepartamentoController::class);
     Route::resource('contratos', ContratoController::class)->only(['index','create','store','show','destroy']);
     Route::resource('edificios', EdificioController::class);
+    Route::resource('ipc', IndiceIpcController::class);
+    Route::resource('users', UserController::class);
+Route::resource('roles', RoleController::class);
+Route::resource('permisos', PermisoController::class);
     Route::get('cuotas', [CuotaController::class,'index'])->name('cuotas.index'); // listado general
     Route::get('cuotas/{cuota}', [CuotaController::class,'show'])->name('cuotas.show');
     Route::post('cuotas/{cuota}/pagar', [CuotaController::class,'pagar'])->name('cuotas.pagar');
+
+
+    Route::put('/roles/{role}/permisos', [RoleController::class, 'updatePermisos'])->name('roles.permisos.update');
+
+
+Route::put('/users/{user}/roles', [UserController::class, 'updatePermisos'])->name('users.roles.update');
 });
 // routes/web.php
 Route::post('contratos/{contrato}/expensas', [ContratoController::class,'actualizarExpensas'])

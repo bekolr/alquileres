@@ -42,6 +42,7 @@ class DepartamentoController extends Controller
             'codigo' => 'required|string|max:10|unique:departamentos,codigo',
             'piso' => 'required|integer|min:0',
             'descripcion' => 'nullable|string|max:255',
+            'edificio_id' => 'required|exists:edificios,id',
         ]); 
         Departamento::create($request->all());
         return redirect()->route('departamentos.index')->with('success', 'Departamento creado exitosamente.');

@@ -36,6 +36,7 @@ class EdificioController extends Controller
         $request->validate([
             'nombre' => 'required|string|max:255',
             'direccion' => 'nullable|string|max:255',
+            'expensas' => 'required|numeric|min:0',
         ]);
         Edificio::create($request->all());
         return redirect()->route('edificios.index')->with('success', 'Edificio creado exitosamente.');
