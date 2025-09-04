@@ -338,13 +338,94 @@ return [
         ['header' => 'Inquilino'],
         [
             'text' => 'Inquilino',
-            'url' => 'inquilinos/create',
+           
             'icon' => 'fas fa-fw fa-user',
+            'submenu' => [
+                [
+                    'text' => 'Crear Inquilino',
+                    'url' => 'inquilinos/create',
+                    'icon' => 'fas fa-fw fa-plus',
+                ],
+                [
+                    'text' => 'Listar Inquilinos',
+                    'url' => 'inquilinos',
+                    'icon' => 'fas fa-fw fa-list',
+                ],
+            ],
+        ],
+            ['header' => 'Departamentos'],
+        [
+            'text' => 'Departamentos',
+           
+            'icon' => 'fas fa-fw fa-building',
+            'submenu' => [
+                [
+                    'text' => 'Crear Departamento',
+                    'url' => 'departamentos/create',
+                    'icon' => 'fas fa-fw fa-plus',
+                ],
+                [
+                    'text' => 'Listar Departamentos',
+                    'url' => 'departamentos',
+                    'icon' => 'fas fa-fw fa-list',
+                ],
+            ],
+        ],
+
+        ['header' => 'Edficios'],
+        [
+            'text' => 'Edificios',
+           
+            'icon' => 'fas fa-fw fa-city',
+            'submenu' => [
+                [
+                    'text' => 'Crear Edificio',
+                    'url' => 'edificios/create',
+                    'icon' => 'fas fa-fw fa-plus',
+                ],
+                [
+                    'text' => 'Listar Edificios',
+                    'url' => 'edificios',
+                    'icon' => 'fas fa-fw fa-list',
+                ],
+            ],
         ],
         [
-            'text' => 'change_password',
-            'url' => 'admin/settings',
-            'icon' => 'fas fa-fw fa-lock',
+            'text' => 'Departamentos',
+           
+            'icon' => 'fas fa-fw fa-building',
+            'submenu' => [
+                [
+                    'text' => 'Crear Departamento',
+                    'url' => 'departamentos/create',
+                    'icon' => 'fas fa-fw fa-plus',
+                ],
+                [
+                    'text' => 'Listar Departamentos',
+                    'url' => 'departamentos',
+                    'icon' => 'fas fa-fw fa-list',
+                ],
+            ],
+        ],
+
+      
+       ['header' => 'Contratos'],
+        [
+            'text' => 'Contratos',
+           
+            'icon' => 'fas fa-fw fa-file-contract',
+            'submenu' => [
+                [
+                    'text' => 'Crear Contrato',
+                    'url' => 'contratos/create',
+                    'icon' => 'fas fa-fw fa-plus',
+                ],
+                [
+                    'text' => 'Listar Contratos',
+                    'url' => 'contratos',
+                    'icon' => 'fas fa-fw fa-list',
+                ],
+            ],
         ],
         [
             'text' => 'multilevel',

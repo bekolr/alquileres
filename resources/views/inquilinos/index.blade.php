@@ -38,5 +38,5 @@
         @endforelse
     </tbody>
 </table>
-{{ $inquilinos->links() ?? '' }}
+
 @stop

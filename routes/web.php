@@ -8,7 +8,7 @@ use App\Http\Controllers\PortalInquilinoController;
 use App\Http\Controllers\ReporteAdminController;
 use App\Http\Controllers\InquilinoController;
 use App\Http\Controllers\DepartamentoController;
-
+use App\Http\Controllers\EdificioController;
 
 /*
 |--------------------------------------------------------------------------
@@ -55,9 +55,14 @@ Route::middleware('auth')->group(function () {
     Route::resource('inquilinos', InquilinoController::class);
     Route::resource('departamentos', DepartamentoController::class);
     Route::resource('contratos', ContratoController::class)->only(['index','create','store','show','destroy']);
+    Route::resource('edificios', EdificioController::class);
     Route::get('cuotas', [CuotaController::class,'index'])->name('cuotas.index'); // listado general
     Route::get('cuotas/{cuota}', [CuotaController::class,'show'])->name('cuotas.show');
     Route::post('cuotas/{cuota}/pagar', [CuotaController::class,'pagar'])->name('cuotas.pagar');
 });
+// routes/web.php
+Route::post('contratos/{contrato}/expensas', [ContratoController::class,'actualizarExpensas'])
+    ->name('contratos.expensas')->middleware('auth');
+
 
 require __DIR__.'/auth.php';

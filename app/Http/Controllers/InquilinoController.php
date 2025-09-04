@@ -13,6 +13,8 @@ class InquilinoController extends Controller
     public function index()
     {
         //
+        $inquilinos = Inquilino::all();
+        return view('inquilinos.index', compact('inquilinos'));
     }
 
     /**
@@ -37,8 +39,7 @@ class InquilinoController extends Controller
         ]);
 
         Inquilino::create($data);
-
-        return redirect()->route('home')->with('ok','Inquilino creado.');
+ return redirect()->route('inquilinos.index')->with('success', 'Cliente creado correctamente.');
     }
 
     /**
