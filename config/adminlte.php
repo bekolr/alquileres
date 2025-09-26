@@ -458,9 +458,27 @@ return [
   
 ],
 
+['header' => 'Movimientos'],
+        [
+            'text' => 'Movimientos',
+            'url'  => 'movimientos',
+            'icon' => 'fas fa-fw fa-exchange-alt',   
         
     ],
+    ['text'=> 'Ingresos y Egresos',
+        'url' => 'movimientos/create',
+        'icon' => 'fas fa-fw fa-cash-register',
 
+
+
+  ],
+
+  [    'text' => 'Cobrar cuotas mes',
+        'route' => 'cuotas.vencimiento',
+        'icon' => 'fas fa-fw fa-calendar-alt'      
+],
+
+    ],
     /*
     |--------------------------------------------------------------------------
     | Menu Filters

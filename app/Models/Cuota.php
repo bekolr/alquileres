@@ -8,10 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class Cuota extends Model
 {
     use HasFactory;
-
+    
     protected $fillable = [
         'contrato_id','periodo','vencimiento','monto_base','expensas',
-        'interes_calculado','total_pagado','estado'
+        'interes_calculado','total_pagado','estado','observaciones',
+        'monto_alquiler','monto_expensas','monto_comision','monto_deposito','monto_total'
     ];
     protected $casts = [
         'periodo' => 'date',
@@ -44,5 +45,7 @@ class Cuota extends Model
         $interes = $this->calcularInteresHasta();
         return max(0, $this->importe_base_total + $interes - (float)$this->total_pagado);
     }
+
+   
 
 }

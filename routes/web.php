@@ -13,70 +13,51 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PermisoController;
 use App\Http\Controllers\IndiceIpcController;
+use App\Http\Controllers\MovimientoController;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
+Route::get('/', fn() => view('welcome'));
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', fn() => view('dashboard'))
+    ->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
+
+    // Perfil
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
 
-Route::middleware('auth')->group(function () {
-    // CRUD contratos
-    Route::resource('contratos', ContratoController::class)->only(['index','create','store','show']);
+    // ========= RUTA ESPECÍFICA PRIMERO =========
+    Route::get('cuotas/vencimientomes', [CuotaController::class, 'filtro'])
+        ->name('cuotas.vencimiento');
 
-    // Cuotas
-    Route::get('cuotas/{cuota}', [CuotaController::class,'show'])->name('cuotas.show');
-    Route::post('cuotas/{cuota}/pagar', [CuotaController::class,'pagar'])->name('cuotas.pagar');
+    // Cuotas (listado general + show + pagar)
+    Route::get('cuotas', [CuotaController::class,'index'])->name('cuotas.index');
+    Route::get('cuotas/{cuota}', [CuotaController::class,'show'])
+        ->whereNumber('cuota')->name('cuotas.show');
+    Route::post('cuotas/{cuota}/pagar', [CuotaController::class,'pagar'])
+        ->whereNumber('cuota')->name('cuotas.pagar');
 
-    // Portal inquilino (perfil)
+    // Portal inquilino
     Route::get('/mi-perfil', [PortalInquilinoController::class,'index'])->name('inquilino.perfil');
 
     // Admin: ingresos
     Route::get('/admin/ingresos', [ReporteAdminController::class,'ingresos'])->name('admin.ingresos');
-});
 
-
-Route::middleware('auth')->group(function () {
+    // Recursos (evitá duplicar contratos; ya estaba 2 veces)
+    Route::resource('contratos', ContratoController::class)->only(['index','create','store','show','destroy']);
     Route::resource('inquilinos', InquilinoController::class);
     Route::resource('departamentos', DepartamentoController::class);
-    Route::resource('contratos', ContratoController::class)->only(['index','create','store','show','destroy']);
     Route::resource('edificios', EdificioController::class);
     Route::resource('ipc', IndiceIpcController::class);
     Route::resource('users', UserController::class);
-Route::resource('roles', RoleController::class);
-Route::resource('permisos', PermisoController::class);
-    Route::get('cuotas', [CuotaController::class,'index'])->name('cuotas.index'); // listado general
-    Route::get('cuotas/{cuota}', [CuotaController::class,'show'])->name('cuotas.show');
-    Route::post('cuotas/{cuota}/pagar', [CuotaController::class,'pagar'])->name('cuotas.pagar');
+    Route::resource('movimientos', MovimientoController::class);
+    Route::resource('roles', RoleController::class);
+    Route::resource('permisos', PermisoController::class);
 
-
-    Route::put('/roles/{role}/permisos', [RoleController::class, 'updatePermisos'])->name('roles.permisos.update');
-
-
-Route::put('/users/{user}/roles', [UserController::class, 'updatePermisos'])->name('users.roles.update');
+    // Expensas contrato
+    Route::post('contratos/{contrato}/expensas', [ContratoController::class,'actualizarExpensas'])
+        ->name('contratos.expensas');
 });
-// routes/web.php
-Route::post('contratos/{contrato}/expensas', [ContratoController::class,'actualizarExpensas'])
-    ->name('contratos.expensas')->middleware('auth');
-
 
 require __DIR__.'/auth.php';

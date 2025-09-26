@@ -15,8 +15,12 @@
     <ul>
         <li><b>Vencimiento:</b> {{ $cuota->vencimiento->format('d/m/Y') }}</li>
         <li><b>Base+Expensas:</b> ${{ number_format($cuota->importe_base_total,2,',','.') }}</li>
+         <li><b>Alquiler:</b> ${{ number_format($cuota->monto_alquiler,2,',','.') }}</li>
+          <li><b>Expensa:</b> ${{ number_format($cuota->monto_expensas,2,',','.') }}</li>
+           <li><b>Comision:</b> ${{ number_format($cuota->monto_comision,2,',','.') }}</li>
+     <li><b>Comision:</b> ${{ number_format($cuota->monto_deposito,2,',','.') }}</li>
         <li><b>Interés a hoy:</b> ${{ number_format($interes,2,',','.') }}</li>
-        <li><b>Total:</b> ${{ number_format($total,2,',','.') }}</li>
+        <li><b>Total:</b> ${{ number_format($cuota->monto_total,2,',','.') }}</li>
         <li><b>Pagado:</b> ${{ number_format($cuota->total_pagado,2,',','.') }}</li>
         <li><b>Estado:</b> {{ strtoupper($cuota->estado) }}</li>
     </ul>

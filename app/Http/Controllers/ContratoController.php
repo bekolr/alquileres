@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Inquilino;
 use App\Models\ContratoAjuste;
 use App\Models\Departamento;
+use App\Models\TipoAumento;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Services\GeneradorCuotasPorBloqueService;
@@ -25,119 +26,95 @@ class ContratoController extends Controller
 
          $departamentos = Departamento::with('edificio')->get();
          $inquilinos = Inquilino::orderBy('nombre')->get();
+         $tiposAumento = TipoAumento::all();
         return view('contratos.create', [
             'inquilinos' => $inquilinos,
             'departamentos' => $departamentos,
+            'tiposAumento' => $tiposAumento,
            
         ]);
     }
-   public function store(Request $request, GeneradorCuotasPorBloqueService $svc)
-    {
-        // Validación
-        $data = $request->validate([
-            'inquilino_id'           => 'required|exists:inquilinos,id',
-            'departamento_id'        => 'required|exists:departamentos,id',
-            'fecha_inicio'           => 'required|date',
-            'fecha_fin'              => 'required|date|after_or_equal:fecha_inicio',
-            'dia_vencimiento'        => 'required|integer|min:1|max:28',
-            'monto_alquiler'         => 'required|numeric|min:0',
+public function store(Request $request)
+{
+   
+$data = $request->all();
+    /*
+    $data = $request->validate([
+        'inquilino_id'            => ['required','exists:inquilinos,id'],
+        'departamento_id'         => ['required','exists:departamentos,id'],
+        'fecha_inicio'            => ['required','date'],
+        'fecha_fin'               => ['nullable','date','after:fecha_inicio'],
+        'dia_vencimiento'                => ['required','integer','between:1,28'], // ≤28 evita febrero
+        'tasa_interes_diaria'          => ['nullable','numeric'],
+        'monto_alquiler'  => ['required','numeric','min:0'],        // ej. 650000
+        'incremento_cada_meses'         => ['required','integer','between:1,12'],// ej. 3 o 4
+        'tiene_comision' => ['sometimes','boolean'], // si tenés esta columna
+        'comision' => ['nullable','numeric','min:0'], // si tenés esta columna
+        'comision_cuotas' => ['nullable','integer','min:1'], // si tenés esta columna
+        'tiene_deposito' => ['sometimes','boolean'], // si tenés esta columna
+        'deposito' => ['nullable','numeric','min:0'], // si tenés esta columna
+        'deposito_cuotas' => ['nullable','integer','min:1'], // si tenés esta columna       
+    ]);*/
 
-            // Bloque inicial (opcional)
-            'tipo_ajuste'            => 'nullable|in:IPC,PORCENTAJE',
-            'incremento_cada_meses'  => 'nullable|integer|min:1',
-            'porcentaje_incremento'  => 'nullable|numeric|min:0', // aceptamos 10 o 0.10
+    DB::transaction(function () use ($data) {
 
-            // Interés (opcional)
-            'tasa_interes_diaria'    => 'nullable|numeric|min:0',
-        ]);
-
-        // Fechas
-        $fechaInicio = Carbon::parse($data['fecha_inicio'])->startOfDay();
-        $fechaFin    = Carbon::parse($data['fecha_fin'])->endOfDay();
-
-        // Meses de duración (incluye el mes de inicio)
-        $duracionMeses = $fechaInicio->diffInMonths($fechaFin->copy()->addDay()) ?: 1;
-
-        // Crear contrato
         $contrato = Contrato::create([
             'inquilino_id'    => $data['inquilino_id'],
             'departamento_id' => $data['departamento_id'],
-            'monto_alquiler'  => $data['monto_alquiler'], // si tu columna se llama así
-            'duracion_meses'  => $duracionMeses,
-            'fecha_inicio'    => $fechaInicio,
-            'fecha_fin'       => $fechaFin,
-            'dia_vencimiento' => $data['dia_vencimiento'],
+            'fecha_inicio'    => $data['fecha_inicio'],
+            'fecha_fin'       => $data['fecha_fin'] ?? null,
+            'dia_vencimiento'        => $data['dia_vencimiento'],
+            'tasa_interes_diaria'  => $data['interes_diario'] ?? 0,
+            'monto_alquiler'   => $data['monto_alquiler'], 
+            'incremento_cada_meses' => $data['incremento_cada_meses'],
+            'tiene_comision' =>$data['tiene_comision'] ?? 0, // si tenés esta columna
+            'comision' => $data['comision'] ?? null, // si tenés esta columna
+            'comision_cuotas' =>$data['comision_cuotas'] ?? null, // si tenés esta columna
+            'tiene_deposito' =>$data['tiene_deposito'] ?? 0, // si tenés esta columna
+            'deposito' => $data['deposito'] ?? null, // si tenés esta columna
+            'deposito_cuotas' => $data['deposito_cuotas'] ?? null,  
+            'tipo_aumento' => $data['tipo_aumento'] ?? null, // si tenés esta columna
+            
+            // si tenés esta columna
         ]);
+       /*crear cuotas iniciales*/
+       $contrato->generarCuotas();
+        return view('contratos.show', compact('contrato'));
 
-        $tasaInteresDiaria = $data['tasa_interes_diaria'] ?? null;
 
-        // ===== Bloque inicial opcional =====
-        if (!empty($data['tipo_ajuste']) && !empty($data['incremento_cada_meses'])) {
+    });
 
-            // Normalizar % fijo: permitir que el usuario ponga 10 (10%) o 0.10
-            $porcentaje = null;
-            if ($data['tipo_ajuste'] === 'PORCENTAJE') {
-                $porcEntrada = (float) ($data['porcentaje_incremento'] ?? 0);
-                // Si viene >= 1, lo pasamos a fracción (10 => 0.10)
-                $porcentaje = $porcEntrada >= 1 ? ($porcEntrada / 100) : $porcEntrada;
-            }
-
-            // Crear el bloque por la relación (no hace falta pasar contrato_id)
-            $bloque = $contrato->ajustes()->create([
-                'desde_mes'      => 1,
-                'duracion_meses' => (int) $data['incremento_cada_meses'],
-                'tipo'           => $data['tipo_ajuste'],  // 'IPC' | 'PORCENTAJE'
-                'porcentaje'     => 2.2,   
-                   'cerrado'    => false // null si IPC
-            ]);
-
-            // Generar SOLO las cuotas del bloque
-            $svc->generarParaBloque($bloque, [
-                'dia_vencimiento'     => (int) $data['dia_vencimiento'],
-                'tasa_interes_diaria' => $tasaInteresDiaria,
-            ]);
-        }
-
-        return redirect()
-            ->route('contratos.show', $contrato)
-            ->with('ok', 'Contrato creado. Se generaron las cuotas del primer bloque (si se configuró).');
-    }
+    return redirect()->route('contratos.index')
+        ->with('ok','Contrato creado y cuotas iniciales generadas.');
+}
 
 
     public function show(Contrato $contrato)
     {
-        $contrato->load(['inquilino','departamento','cuotas'=>fn($q)=>$q->orderBy('periodo')]);
-        return view('contratos.show', compact('contrato'));
+        
+         $contrato->load([
+        'inquilino:id,nombre',
+        'departamento' => fn($q) => $q->with('edificio:id,nombre,expensas')->select([ 'id','edificio_id','codigo']),
+       
+        'cuotas' => fn($q) => $q->orderBy('periodo'),
+
+    ]);
+
+   
+
+    // Totales (soporta columnas nuevas; si alguna no existe, quedará 0 en la vista)
+    $totales = [
+        'alquiler' => $contrato->cuotas->sum('monto_alquiler'),
+        'expensas' => $contrato->cuotas->sum('monto_expensas'),
+        'comision' => $contrato->cuotas->sum('monto_comision'),
+        'deposito' => $contrato->cuotas->sum('monto_deposito'),
+        'total'    => $contrato->cuotas->sum('monto_total'),
+        'pagado'   => $contrato->cuotas->sum('total_pagado'),
+        'saldo'    => $contrato->cuotas->sum('saldo_con_interes'),
+    ];
+
+    return view('contratos.show', compact('contrato','totales'));
     }
 
 
-    public function actualizarExpensas(Request $request, Contrato $contrato)
-{
-    $data = $request->validate([
-        'nuevas_expensas' => 'required|numeric|min:0',
-        'aplicar_desde'   => 'required|date_format:Y-m',   // ej: 2025-10
-        'modo'            => 'required|in:solo_pendientes,pendientes_y_parciales',
-    ]);
-
-    DB::transaction(function () use ($contrato, $data) {
-        // guardá el nuevo valor en el contrato para futuras cuotas
-        $contrato->expensas_mensuales = $data['nuevas_expensas'];
-        $contrato->save();
-
-        $desde = Carbon::createFromFormat('Y-m', $data['aplicar_desde'])->startOfMonth();
-
-        $q = $contrato->cuotas()->whereDate('periodo', '>=', $desde);
-
-        if ($data['modo'] === 'solo_pendientes') {
-            $q->where('estado', 'pendiente');
-        } else { // pendientes y parciales
-            $q->whereIn('estado', ['pendiente','parcial']);
-        }
-
-        // Actualizar valor de expensas en las cuotas afectadas
-        $q->update(['expensas' => $data['nuevas_expensas']]);
-    });
-
-    return back()->with('ok', 'Expensas actualizadas correctamente.');
-}
 }
